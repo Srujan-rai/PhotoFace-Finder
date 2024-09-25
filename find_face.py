@@ -1,28 +1,28 @@
 import face_recognition
 import pickle
 
-
+# Load the saved face encodings from stored photos
 with open('face_encodings.pkl', 'rb') as f:
     stored_encodings = pickle.load(f)
 
-
-new_photo_path = "photo/crop.png"
+new_photo_path = "photos/WhatsApp Image 2024-09-25 at 10.17.52 PM.jpeg"
 new_image = face_recognition.load_image_file(new_photo_path)
 
+new_face_encodings = face_recognition.face_encodings(new_image)
 
-new_face_locations = face_recognition.face_locations(new_image)
-new_encodings = face_recognition.face_encodings(new_image, new_face_locations)
+if new_face_encodings:
+    new_face_encoding = new_face_encodings[0]  
 
-if new_encodings:
-    new_encoding = new_encodings[0]
+    match_found = False
 
-  
-    for photo_name, encoding in stored_encodings.items():
-        results = face_recognition.compare_faces([encoding], new_encoding, tolerance=0.6)
+    for photo_name, encodings in stored_encodings.items():
+        results = face_recognition.compare_faces(encodings, new_face_encoding, tolerance=0.6)
 
-        if results[0]:
-            print(f"Match found: {photo_name}")
-        else:
-            print(f"No match found for {photo_name}")
+        if any(results):
+            print(f"Match found in stored photo: {photo_name}")
+            match_found = True
+
+    if not match_found:
+        print("No matching face found in any stored photo.")
 else:
-    print("No faces found in the new image")
+    print("No face found in the uploaded image.")
