@@ -52,7 +52,7 @@ def home():
     matches = process_image(image_path)
     print(matches)
     
-    #os.remove(image_path)
+    os.remove(image_path)
     
     if matches:
         image_urls = [request.host_url + 'images/' + match for match in matches]

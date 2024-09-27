@@ -3,28 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Image</title>
-    <script>
-        var message={{message}};
-        if (message){
-            alert(message);
-
+    <title>Face Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
         }
-    </script>
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .results img {
+            margin: 10px;
+            border: 2px solid #333;
+            max-width: 300px;
+        }
+
+        .no-match {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h2>Upload an Image</h2>
+    <h1>Face Recognition System</h1>
 
-    <form method="/upload" enctype="multipart/form-data">
-        <label for="imageUpload">Choose an image:</label>
-        <input type="file" id="imageUpload" name="image" accept="image/*" required>
-        <br><br>
-        <input type="submit" value="Upload Image">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="image" name="image" accept="image/*" required>
+        <br>
+        <button type="submit">Upload and Check</button>
     </form>
 
-    <h3>Matched Images:</h3>
-    <h1>{{message}}</h1>    
-   
+    <div id="results" class="results"></div>
 
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultsDiv = document.getElementById('results');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultsDiv.innerHTML = '';
+                if (data.message === "Matches found") {
+                    data.images.forEach(imageUrl => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = imageUrl;
+                        resultsDiv.appendChild(imgElement);
+                    });
+                } else {
+                    resultsDiv.innerHTML = `<p class="no-match">${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
+            });
+        });
+    </script>
 </body>
 </html>
