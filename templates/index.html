@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+    <script>
+        var message={{message}};
+        if (message){
+            alert(message);
+
+        }
+    </script>
+</head>
+<body>
+    <h2>Upload an Image</h2>
+
+    <form method="/upload" enctype="multipart/form-data">
+        <label for="imageUpload">Choose an image:</label>
+        <input type="file" id="imageUpload" name="image" accept="image/*" required>
+        <br><br>
+        <input type="submit" value="Upload Image">
+    </form>
+
+    <h3>Matched Images:</h3>
+    <h1>{{message}}</h1>    
+   
+
+</body>
+</html>

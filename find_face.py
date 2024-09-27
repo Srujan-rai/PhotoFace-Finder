@@ -1,7 +1,6 @@
 import face_recognition
 import pickle
 
-# Load the saved face encodings from stored photos
 with open('face_encodings.pkl', 'rb') as f:
     stored_encodings = pickle.load(f)
 

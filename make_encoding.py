@@ -2,7 +2,6 @@ import face_recognition
 import os
 import pickle
 
-# Path to the folder containing your stored images
 photo_folder = "photos"
 face_encodings = {}
 
