@@ -4,16 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Image</title>
+    <script>
+        async function uploadImage(event) {
+            event.preventDefault();  
+    
+            const formData = new FormData();
+            const imageFile = document.getElementById('imageUpload').files[0];
+            formData.append('image', imageFile);
+    
+            try {
+                
+                const response = await fetch('http://127.0.0.1:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                
+                console.log('Response:', response);
+    
+                
+                const data = await response.json();
+                console.log('Parsed Data:', data);
+    
+                const imageDiv = document.getElementById('matchedImages');
+                imageDiv.innerHTML = ''; 
+    
+                if (data.images && data.images.length > 0) {
+                    data.images.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.width = 200; 
+                        imageDiv.appendChild(img);
+                    });
+                } else {
+                    imageDiv.innerHTML = '<p>No matching face found.</p>';
+                }
+            } catch (error) {
+                console.error('Error in fetch:', error);
+                alert('An error occurred while uploading the image.');
+            }
+        }
+    </script>
+    
 </head>
 <body>
     <h2>Upload an Image</h2>
 
-    <form action="http://127.0.0.1:5000/upload" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" onsubmit="uploadImage(event)" enctype="multipart/form-data">
         <label for="imageUpload">Choose an image:</label>
         <input type="file" id="imageUpload" name="image" accept="image/*" required>
         <br><br>
         <input type="submit" value="Upload Image">
     </form>
+
+    <h3>Matched Images:</h3>
+    <div id="matchedImages"></div> 
 
 </body>
 </html>

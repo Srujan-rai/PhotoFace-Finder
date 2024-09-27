@@ -8,7 +8,7 @@ face_encodings = {}
 
 for photo_file in os.listdir(photo_folder):
     if photo_file.endswith(('png', 'jpg', 'jpeg')):
-        # Load the image
+        
         image_path = os.path.join(photo_folder, photo_file)
         image = face_recognition.load_image_file(image_path)
 
