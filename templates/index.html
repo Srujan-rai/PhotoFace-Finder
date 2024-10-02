@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Recognition</title>
+    <title>Face Recognition System</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,13 +17,52 @@
             margin-bottom: 20px;
         }
 
-        form {
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .option-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .option-buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #uploadSection, #cameraSection {
+            display: none;
             text-align: center;
-            margin-bottom: 30px;
         }
 
         input[type="file"] {
             margin-bottom: 10px;
+        }
+
+        #camera {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            display: block;
+            border: 2px solid #333;
+        }
+
+        #captureButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #capturedImage {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 2px solid #333;
         }
 
         .results {
@@ -36,29 +75,179 @@
             max-width: 300px;
         }
 
+        .results .download-btn {
+            margin-top: 10px;
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
         .no-match {
             color: red;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Reset Button */
+        #resetButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .option-buttons {
+                flex-direction: column;
+            }
+
+            .option-buttons button {
+                margin: 10px 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <h1>Face Recognition System</h1>
 
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="image" name="image" accept="image/*" required>
-        <br>
-        <button type="submit">Upload and Check</button>
-    </form>
+    <div class="container">
+        <div class="option-buttons">
+            <button id="uploadBtn">Upload Photo</button>
+            <button id="takePhotoBtn">Take Photo</button>
+        </div>
 
-    <div id="results" class="results"></div>
+        
+        <div id="uploadSection">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="image" name="image" accept="image/*" required>
+                <br>
+                <button type="submit">Upload and Check</button>
+            </form>
+        </div>
+
+      
+        <div id="cameraSection">
+            <video id="camera" autoplay></video>
+            <br>
+            <button id="captureButton">Capture Photo</button>
+            <canvas id="canvas" class="hidden"></canvas>
+            <img id="capturedImage" class="hidden" alt="Captured Image">
+            <br>
+            <button id="submitPhotoBtn" class="hidden">Submit Photo</button>
+        </div>
+
+       
+        <div id="results" class="results"></div>
+
+      
+        <button id="resetButton" class="hidden">Reset</button>
+    </div>
 
     <script>
-        const form = document.getElementById('uploadForm');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const takePhotoBtn = document.getElementById('takePhotoBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const cameraSection = document.getElementById('cameraSection');
+        const uploadForm = document.getElementById('uploadForm');
         const resultsDiv = document.getElementById('results');
+        const resetButton = document.getElementById('resetButton');
 
-        form.addEventListener('submit', function(event) {
+        
+        const camera = document.getElementById('camera');
+        const captureButton = document.getElementById('captureButton');
+        const canvas = document.getElementById('canvas');
+        const capturedImage = document.getElementById('capturedImage');
+        const submitPhotoBtn = document.getElementById('submitPhotoBtn');
+
+
+        uploadBtn.addEventListener('click', () => {
+            uploadSection.style.display = 'block';
+            cameraSection.style.display = 'none';
+            resultsDiv.innerHTML = '';
+            resetButton.classList.add('hidden');
+        });
+
+    
+        takePhotoBtn.addEventListener('click', () => {
+            uploadSection.style.display = 'none';
+            cameraSection.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            resetButton.classList.add('hidden');
+            startCamera();
+        });
+
+        function startCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        camera.srcObject = stream;
+                        camera.play();
+                    })
+                    .catch(err => {
+                        console.error("Error accessing camera: ", err);
+                        alert("Unable to access camera. Please try uploading a photo instead.");
+                        cameraSection.style.display = 'none';
+                        uploadSection.style.display = 'block';
+                    });
+            } else {
+                alert("Camera not supported by your browser.");
+                cameraSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+            }
+        }
+
+
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+            context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/png');
+            capturedImage.src = dataURL;
+            capturedImage.classList.remove('hidden');
+            submitPhotoBtn.classList.remove('hidden');
+        });
+
+
+        submitPhotoBtn.addEventListener('click', () => {
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                const filename = `captured_${Date.now()}.png`;
+                const file = new File([blob], filename, { type: 'image/png' });
+                formData.append('image', file);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
+                });
+            }, 'image/png');
+        });
+
+
+        uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            const formData = new FormData(form);
+            const formData = new FormData(uploadForm);
 
             fetch('/upload', {
                 method: 'POST',
@@ -66,21 +255,44 @@
             })
             .then(response => response.json())
             .then(data => {
-                resultsDiv.innerHTML = '';
-                if (data.message === "Matches found") {
-                    data.images.forEach(imageUrl => {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = imageUrl;
-                        resultsDiv.appendChild(imgElement);
-                    });
-                } else {
-                    resultsDiv.innerHTML = `<p class="no-match">${data.message}</p>`;
-                }
+                displayResults(data);
             })
             .catch(error => {
                 console.error('Error:', error);
                 resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
             });
+        });
+
+        function displayResults(data) {
+            resultsDiv.innerHTML = '';
+            if (data.message === "Matches found") {
+                data.images.forEach(imageUrl => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imageUrl;
+
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = imageUrl;
+                    downloadLink.download = 'matched_photo.png';
+                    downloadLink.textContent = 'Download';
+                    downloadLink.className = 'download-btn';
+
+                    resultsDiv.appendChild(imgElement);
+                    resultsDiv.appendChild(downloadLink);
+                });
+            } else {
+                resultsDiv.innerHTML = `<p class="no-match">${data.message}</p>`;
+            }
+
+            resetButton.classList.remove('hidden'); 
+        }
+
+        resetButton.addEventListener('click', () => {
+            resultsDiv.innerHTML = '';
+            uploadSection.style.display = 'none';
+            cameraSection.style.display = 'none';
+            submitPhotoBtn.classList.add('hidden');
+            capturedImage.classList.add('hidden');
+            resetButton.classList.add('hidden');
         });
     </script>
 </body>
