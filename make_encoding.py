@@ -6,6 +6,7 @@ photo_folder = "photos"
 face_encodings = {}
 
 for photo_file in os.listdir(photo_folder):
+    
     if photo_file.endswith(('png', 'jpg', 'jpeg')):
         
         image_path = os.path.join(photo_folder, photo_file)

@@ -4,6 +4,9 @@ import face_recognition
 import pickle
 from flask_cors import CORS
 
+
+
+
 with open('face_encodings.pkl', 'rb') as f:
     stored_encodings = pickle.load(f)
 
