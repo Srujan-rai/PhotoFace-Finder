@@ -95,31 +95,6 @@
             display: none;
         }
 
-        /* Loading Animation */
-        .loader {
-            display: none;
-            border: 8px solid #f3f3f3; /* Light grey */
-            border-top: 8px solid #3498db; /* Blue */
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Loader Message */
-        .loader-message {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 16px;
-            color: #3498db; /* Blue color */
-        }
-
         /* Reset Button */
         #resetButton {
             margin-top: 20px;
@@ -154,6 +129,7 @@
             <button id="takePhotoBtn">Take Photo</button>
         </div>
 
+        
         <div id="uploadSection">
             <form id="uploadForm" enctype="multipart/form-data">
                 <input type="file" id="image" name="image" accept="image/*" required>
@@ -162,6 +138,7 @@
             </form>
         </div>
 
+      
         <div id="cameraSection">
             <video id="camera" autoplay></video>
             <br>
@@ -172,12 +149,10 @@
             <button id="submitPhotoBtn" class="hidden">Submit Photo</button>
         </div>
 
+       
         <div id="results" class="results"></div>
 
-        <!-- Loading Animation -->
-        <div class="loader" id="loader"></div>
-        <div class="loader-message" id="loaderMessage"></div>
-
+      
         <button id="resetButton" class="hidden">Reset</button>
     </div>
 
@@ -189,14 +164,14 @@
         const uploadForm = document.getElementById('uploadForm');
         const resultsDiv = document.getElementById('results');
         const resetButton = document.getElementById('resetButton');
-        const loader = document.getElementById('loader');
-        const loaderMessage = document.getElementById('loaderMessage');
+
         
         const camera = document.getElementById('camera');
         const captureButton = document.getElementById('captureButton');
         const canvas = document.getElementById('canvas');
         const capturedImage = document.getElementById('capturedImage');
         const submitPhotoBtn = document.getElementById('submitPhotoBtn');
+
 
         uploadBtn.addEventListener('click', () => {
             uploadSection.style.display = 'block';
@@ -205,6 +180,7 @@
             resetButton.classList.add('hidden');
         });
 
+    
         takePhotoBtn.addEventListener('click', () => {
             uploadSection.style.display = 'none';
             cameraSection.style.display = 'block';
@@ -233,6 +209,7 @@
             }
         }
 
+
         captureButton.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             canvas.width = camera.videoWidth;
@@ -244,9 +221,8 @@
             submitPhotoBtn.classList.remove('hidden');
         });
 
+
         submitPhotoBtn.addEventListener('click', () => {
-            loader.style.display = 'block'; 
-            loaderMessage.textContent = "Loading... Finishing your beautiful pictures... Almost done!";
             canvas.toBlob(blob => {
                 const formData = new FormData();
                 const filename = `captured_${Date.now()}.png`;
@@ -259,24 +235,19 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    loader.style.display = 'none';
-                    loaderMessage.textContent = "";
                     displayResults(data);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    loader.style.display = 'none'; 
-                    loaderMessage.textContent = "";
                     resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
                 });
             }, 'image/png');
         });
 
+
         uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(uploadForm);
-            loader.style.display = 'block';
-            loaderMessage.textContent = "Loading... Finishing your beautiful pictures... Almost done!";
 
             fetch('/upload', {
                 method: 'POST',
@@ -284,46 +255,44 @@
             })
             .then(response => response.json())
             .then(data => {
-                loader.style.display = 'none'; 
-                loaderMessage.textContent = "";
                 displayResults(data);
             })
             .catch(error => {
                 console.error('Error:', error);
-                loader.style.display = 'none'; 
-                loaderMessage.textContent = ""; 
                 resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
             });
         });
 
         function displayResults(data) {
             resultsDiv.innerHTML = '';
-            if (data && data.results && data.results.length > 0) {
-                data.results.forEach(result => {
+            if (data.message === "Matches found") {
+                data.images.forEach(imageUrl => {
                     const imgElement = document.createElement('img');
-                    imgElement.src = result.imageUrl;
-                    resultsDiv.appendChild(imgElement);
+                    imgElement.src = imageUrl;
 
                     const downloadLink = document.createElement('a');
-                    downloadLink.href = result.imageUrl; 
-                    downloadLink.classList.add('download-btn');
-                    downloadLink.textContent = 'Download ' + result.filename; 
-                    downloadLink.setAttribute('download', result.filename);
+                    downloadLink.href = imageUrl;
+                    downloadLink.download = 'matched_photo.png';
+                    downloadLink.textContent = 'Download';
+                    downloadLink.className = 'download-btn';
+
+                    resultsDiv.appendChild(imgElement);
                     resultsDiv.appendChild(downloadLink);
                 });
             } else {
-                resultsDiv.innerHTML = `<p class="no-match">No matches found.</p>`;
+                resultsDiv.innerHTML = `<p class="no-match">${data.message}</p>`;
             }
-            resetButton.classList.remove('hidden');
+
+            resetButton.classList.remove('hidden'); 
         }
 
         resetButton.addEventListener('click', () => {
+            resultsDiv.innerHTML = '';
             uploadSection.style.display = 'none';
             cameraSection.style.display = 'none';
-            resultsDiv.innerHTML = '';
+            submitPhotoBtn.classList.add('hidden');
+            capturedImage.classList.add('hidden');
             resetButton.classList.add('hidden');
-            loader.style.display = 'none'; 
-            loaderMessage.textContent = ""; 
         });
     </script>
 </body>

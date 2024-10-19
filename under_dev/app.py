@@ -100,7 +100,6 @@ def home():
 @app.route('/images/<filename>', methods=['GET'])
 def get_image(filename):
     try:
-        # Verify the image file exists before attempting to send it
         image_path = os.path.join(app.config["img_retrieve"], filename)
         if not os.path.isfile(image_path):
             return jsonify({"message": "Image not found"}), 404
