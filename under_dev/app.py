@@ -10,7 +10,7 @@ img_folder = "photo/"
 db_file = "face_encodings.db"  # SQLite database file
 
 app.config["img_folder"] = img_folder
-app.config["img_retrieve"] = "photos/"
+app.config["img_retrieve"] = "retrieval"
 
 # Ensure the upload folder exists
 if not os.path.exists(img_folder):
@@ -100,11 +100,17 @@ def home():
 @app.route('/images/<filename>', methods=['GET'])
 def get_image(filename):
     try:
+        # Verify the image file exists before attempting to send it
+        image_path = os.path.join(app.config["img_retrieve"], filename)
+        if not os.path.isfile(image_path):
+            return jsonify({"message": "Image not found"}), 404
+        
         return send_from_directory(app.config["img_retrieve"], filename)
     except Exception as e:
         print(f"Error retrieving image: {e}")
-        return jsonify({"message": "Image not found"}), 404
-
+        return jsonify({"message": "Error retrieving image"}), 500
+    
+    
 # Home route to serve the HTML template
 @app.route('/')
 def index():
@@ -112,4 +118,4 @@ def index():
 
 if __name__ == "__main__":
     init_db()  # Initialize the database on startup
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0",threaded=True)
