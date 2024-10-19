@@ -245,7 +245,7 @@
         });
 
         submitPhotoBtn.addEventListener('click', () => {
-            loader.style.display = 'block'; // Show loading animation
+            loader.style.display = 'block'; 
             loaderMessage.textContent = "Loading... Finishing your beautiful pictures... Almost done!";
             canvas.toBlob(blob => {
                 const formData = new FormData();
@@ -259,14 +259,14 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    loader.style.display = 'none'; // Hide loading animation
-                    loaderMessage.textContent = ""; // Clear loading message
+                    loader.style.display = 'none';
+                    loaderMessage.textContent = "";
                     displayResults(data);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    loader.style.display = 'none'; // Hide loading animation
-                    loaderMessage.textContent = ""; // Clear loading message
+                    loader.style.display = 'none'; 
+                    loaderMessage.textContent = "";
                     resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
                 });
             }, 'image/png');
@@ -275,7 +275,7 @@
         uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(uploadForm);
-            loader.style.display = 'block'; // Show loading animation
+            loader.style.display = 'block';
             loaderMessage.textContent = "Loading... Finishing your beautiful pictures... Almost done!";
 
             fetch('/upload', {
@@ -284,14 +284,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                loader.style.display = 'none'; // Hide loading animation
-                loaderMessage.textContent = ""; // Clear loading message
+                loader.style.display = 'none'; 
+                loaderMessage.textContent = "";
                 displayResults(data);
             })
             .catch(error => {
                 console.error('Error:', error);
-                loader.style.display = 'none'; // Hide loading animation
-                loaderMessage.textContent = ""; // Clear loading message
+                loader.style.display = 'none'; 
+                loaderMessage.textContent = ""; 
                 resultsDiv.innerHTML = `<p class="no-match">An error occurred while processing the request.</p>`;
             });
         });
@@ -301,7 +301,7 @@
             if (data && data.results && data.results.length > 0) {
                 data.results.forEach(result => {
                     const imgElement = document.createElement('img');
-                    imgElement.src = result.imageUrl; // Update with your image URL structure
+                    imgElement.src = result.imageUrl;
                     resultsDiv.appendChild(imgElement);
 
                     const downloadLink = document.createElement('a');
@@ -322,8 +322,9 @@
             cameraSection.style.display = 'none';
             resultsDiv.innerHTML = '';
             resetButton.classList.add('hidden');
-            loader.style.display = 'none';
+            loader.style.display = 'none'; 
             loaderMessage.textContent = ""; 
+        });
     </script>
 </body>
 </html>
